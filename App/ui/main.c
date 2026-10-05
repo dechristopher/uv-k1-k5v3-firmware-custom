@@ -31,6 +31,7 @@
 #ifdef ENABLE_CW_MODULATOR
 	#include "app/cwmacro.h"
 	#include "app/cwkeyer.h"
+	#include "app/cwrit.h"
     #include "driver/millis.h"
 #endif
 #include "bitmaps.h"
@@ -2174,6 +2175,17 @@ void UI_DisplayMain(void)
 #if ENABLE_FEAT_F4HWN
         const uint8_t displayBandwidth = vfoInfo->CHANNEL_BANDWIDTH;
 
+        // A RIT/XIT tag takes MONI's place at the right end. To keep the filter label
+        // clear of it, CLASSIC moves the label into the repeater-shift slot, and TINY
+        // uses the short names 2 px further left so even the tag's inverse box has room
+#ifdef ENABLE_CW_MODULATOR
+        const bool ritTag = isMainVFO && vfoInfo->Modulation == MODULATION_CW && CW_RIT_TagVisible();
+#else
+        const bool ritTag = false;
+#endif
+        const uint8_t bwX     = LCD_WIDTH + (ritTag ? 56 : 80);
+        const uint8_t bwTinyX = ritTag ? 89 : 91;
+
         #ifdef ENABLE_FEAT_F4HWN_NARROWER
             bool narrower = 0;
 
@@ -2188,41 +2200,44 @@ void UI_DisplayMain(void)
                 // BANDWIDTH_NARROWEST is a distinct per-channel setting (not the F4HWN
                 // narrower mode upgrade); show its own label rather than "N+".
                 if (gSetting_set_gui)
-                    UI_PrintStringSmallNormal("2k", LCD_WIDTH + 80, 0, line + 1);
+                    UI_PrintStringSmallNormal("2k", bwX, 0, line + 1);
                 else
-                    GUI_DisplaySmallest("2k", 91, line == 0 ? 17 : 49, false, true);
+                    GUI_DisplaySmallest("2k", bwTinyX, line == 0 ? 17 : 49, false, true);
             }
             else
 #endif
             if (gSetting_set_gui)
             {
                 const char *bandWidthNames[] = {"W", "N", "N+"};
-                UI_PrintStringSmallNormal(bandWidthNames[displayBandwidth + narrower], LCD_WIDTH + 80, 0, line + 1);
+                UI_PrintStringSmallNormal(bandWidthNames[displayBandwidth + narrower], bwX, 0, line + 1);
             }
             else
             {
                 const char *bandWidthNames[] = {"WIDE", "NAR", "NAR+"};
-                GUI_DisplaySmallest(bandWidthNames[displayBandwidth + narrower], 91, line == 0 ? 17 : 49, false, true);
+                const char *bandWidthShort[] = {"W", "N", "N+"};
+                GUI_DisplaySmallest((ritTag ? bandWidthShort : bandWidthNames)[displayBandwidth + narrower], bwTinyX, line == 0 ? 17 : 49, false, true);
             }
         #else
             if (gSetting_set_gui)
             {
 #ifdef ENABLE_EXTRA_FILTER
                 const char *bandWidthNames[] = {"W", "N", "2k"};
-                UI_PrintStringSmallNormal(bandWidthNames[vfoInfo->CHANNEL_BANDWIDTH], LCD_WIDTH + 80, 0, line + 1);
+                UI_PrintStringSmallNormal(bandWidthNames[vfoInfo->CHANNEL_BANDWIDTH], bwX, 0, line + 1);
 #else
                 const char *bandWidthNames[] = {"W", "N"};
-                UI_PrintStringSmallNormal(bandWidthNames[displayBandwidth], LCD_WIDTH + 80, 0, line + 1);
+                UI_PrintStringSmallNormal(bandWidthNames[displayBandwidth], bwX, 0, line + 1);
 #endif
             }
             else
             {
 #ifdef ENABLE_EXTRA_FILTER
                 const char *bandWidthNames[] = {"WIDE", "NAR", "2k"};
-                GUI_DisplaySmallest(bandWidthNames[vfoInfo->CHANNEL_BANDWIDTH], 91, line == 0 ? 17 : 49, false, true);
+                const char *bandWidthShort[] = {"W", "N", "2k"};
+                GUI_DisplaySmallest((ritTag ? bandWidthShort : bandWidthNames)[vfoInfo->CHANNEL_BANDWIDTH], bwTinyX, line == 0 ? 17 : 49, false, true);
 #else
                 const char *bandWidthNames[] = {"WIDE", "NAR"};
-                GUI_DisplaySmallest(bandWidthNames[displayBandwidth], 91, line == 0 ? 17 : 49, false, true);
+                const char *bandWidthShort[] = {"W", "N"};
+                GUI_DisplaySmallest((ritTag ? bandWidthShort : bandWidthNames)[displayBandwidth], bwTinyX, line == 0 ? 17 : 49, false, true);
 #endif
             }
         #endif
@@ -2274,6 +2289,27 @@ void UI_DisplayMain(void)
             }
         }
         */
+#ifdef ENABLE_CW_MODULATOR
+        if (ritTag) {
+           // shown inverse while adjust mode is editing it
+           CW_RIT_FormatTag(String);
+           const bool editing = CW_RIT_IsAdjusting();
+
+           if (gSetting_set_gui) {
+                // starts at 77 so a 7-character tag's inverse box ends on the last column
+                if (editing)
+                    UI_PrintStringSmallNormalInverse(String, 77, 0, line + 2);
+                else
+                    UI_PrintStringSmallNormal(String, LCD_WIDTH + 77, 0, line + 1);
+           } else {
+                if (editing)
+                    GUI_DisplaySmallestInverse(String, 100, line + 2, false, true, MIN(100 + strlen(String) * 4, LCD_WIDTH - 1));
+                else
+                    GUI_DisplaySmallest(String, 100, line == 0 ? 17 : 49, false, true);
+           }
+        }
+        else
+#endif
         if (isMainVFO) {
            if (gMonitor) {
                 strcpy(String, "MONI");

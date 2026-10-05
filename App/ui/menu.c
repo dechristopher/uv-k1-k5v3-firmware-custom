@@ -190,6 +190,7 @@ const t_menu_item MenuList[] =
 	{"CWmsg3",      MENU_CW_MSG3       },
 	{"CWmsg4",      MENU_CW_MSG4       },
 	{"CWmrpt",      MENU_CW_MSG_REPEAT },
+	{"CWrgr",       MENU_CW_ROGER_DITS },
 	{"CWbkin",      MENU_CW_BKIN       },
 #endif
 
@@ -540,6 +541,7 @@ const t_sidefunction gSubMenu_SIDEFUNCTIONS[] =
 	{"REPEAT\nCW MSG2", ACTION_OPT_REPEAT_CWMSG2},
 	{"REPEAT\nCW MSG3", ACTION_OPT_REPEAT_CWMSG3},
 	{"REPEAT\nCW MSG4", ACTION_OPT_REPEAT_CWMSG4},
+	{"PROPER\nROGER", ACTION_OPT_CW_PROPER_ROGER},
 #endif
 #ifdef ENABLE_FEAT_F4HWN
     {"RX MODE",         ACTION_OPT_RXMODE},
@@ -1416,6 +1418,10 @@ void UI_DisplayMenu(void)
 
 		case MENU_CW_MSG_REPEAT:
 			sprintf(String, "%d s", gSubMenuSelection);
+			break;
+
+		case MENU_CW_ROGER_DITS:
+			sprintf(String, "Dah\n%d dits", gSubMenuSelection);
 			break;
 
 		case MENU_CW_MSG1:

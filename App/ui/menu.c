@@ -192,6 +192,7 @@ const t_menu_item MenuList[] =
 	{"CWmrpt",      MENU_CW_MSG_REPEAT },
 	{"CWrgr",       MENU_CW_ROGER_DITS },
 	{"CWbkin",      MENU_CW_BKIN       },
+	{"CWhang",      MENU_CW_HANG       },
 #endif
 
     // hidden menu items from here on
@@ -534,6 +535,10 @@ const t_sidefunction gSubMenu_SIDEFUNCTIONS[] =
     #endif
 	{"CW KEYER\nMODE", ACTION_OPT_CW_KEYER_MODE},
 	{"RIT/XIT\nADJUST", ACTION_OPT_CW_RIT},
+	{"CW SPEED", ACTION_OPT_CW_SPEED},
+	{"FILTER\nWIDTH", ACTION_OPT_CW_FILTER},
+	{"CW KEY\nINPUT", ACTION_OPT_CW_KEY_INPUT},
+	{"CW\nBREAK-IN", ACTION_OPT_CW_BREAK_IN},
 	{"PLAY\nCW MSG1", ACTION_OPT_PLAY_CWMSG1},
 	{"PLAY\nCW MSG2", ACTION_OPT_PLAY_CWMSG2},
 	{"PLAY\nCW MSG3", ACTION_OPT_PLAY_CWMSG3},
@@ -1415,6 +1420,10 @@ void UI_DisplayMenu(void)
 
 		case MENU_CW_BKIN:
 			sprintf(String, "Break-In\n%s", gSubMenu_OFF_ON[gSubMenuSelection]);
+			break;
+
+		case MENU_CW_HANG:
+			sprintf(String, "Hang\n%d ms", gSubMenuSelection * 10);
 			break;
 
 		case MENU_CW_MSG_REPEAT:

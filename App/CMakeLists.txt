@@ -185,6 +185,7 @@ enable_feature(ENABLE_FEAT_NR7Y_CW
 # Code practice (requires CW)
 enable_feature(ENABLE_FEAT_NR7Y_CPO
     app/cpo.c
+    app/cpocall.c
     ui/cpo.c
 )
 # Millis support
